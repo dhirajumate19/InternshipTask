@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "179182265172",
+    "project_id": "virtuetask",
+    "storage_bucket": "virtuetask.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:179182265172:android:7da2d497abac7bbe319ec1",
+        "android_client_info": {
+          "package_name": "com.example.virtue_task"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "179182265172-tuqkjrfsbtgc5d3br36qt9j3dta1q9n5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.virtue_task",
+            "certificate_hash": "5a1cdc59cd4a5d9741262de06e128193e9af1a1a"
+          }
+        },
+        {
+          "client_id": "179182265172-ihief0a568q4aid5tn2lk3ct9qmctgnv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZxFHVS5e47sfv1YSqQ4UbyfC4WKJVFy8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "179182265172-ihief0a568q4aid5tn2lk3ct9qmctgnv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
