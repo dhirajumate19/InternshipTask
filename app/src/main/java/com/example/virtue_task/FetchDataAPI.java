@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 
 import org.json.JSONArray;
@@ -21,47 +22,62 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class FetchDataAPI extends AppCompatActivity {
+
+
     private ProgressDialog progressDialog;
     private ListView listView;
+
     // URL to get contacts JSON
     private static String url = "https://api.androidhive.info/contacts/";
 
     ArrayList<HashMap<String, String>> contactList;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.list);
+
         contactList = new ArrayList<>();
 
         listView = (ListView) findViewById(R.id.list);
 
         new GetContacts().execute();
-        Log.i("fect activty","Ok");
     }
 
+
     private class GetContacts extends AsyncTask<Void, Void, Void> {
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            // Showing progress dialog
             progressDialog = new ProgressDialog(FetchDataAPI.this);
             progressDialog.setMessage("Please wait...");
             progressDialog.setCancelable(false);
             progressDialog.show();
-        }
-        @Override
-        protected Void doInBackground(Void... voids) {
-            HttpHandler httpHandler = new HttpHandler();
-            String jsonstr = httpHandler.makeServiceCall(url);
-            Log.i("task", "URL Response" + jsonstr);
-            if (jsonstr != null) {
-                try {
-                    JSONObject jsonObject = new JSONObject(jsonstr);
-                    JSONArray contacts=jsonObject.getJSONArray("contacts");
-                    for (int i=0;i<contacts.length();i++){
-                        JSONObject c=contacts.getJSONObject(i);
 
-                        //Getting Data From JSON Object
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            HttpHandler sh = new HttpHandler();
+
+            // Making a request to url and getting response
+            String jsonStr = sh.makeServiceCall(url);
+
+            Log.e("Task", "Response from url: " + jsonStr);
+
+            if (jsonStr != null) {
+                try {
+                    JSONObject jsonObj = new JSONObject(jsonStr);
+
+                    // Getting JSON Array node
+                    JSONArray contacts = jsonObj.getJSONArray("contacts");
+
+                    // looping through All Contacts
+                    for (int i = 0; i < contacts.length(); i++) {
+                        JSONObject c = contacts.getJSONObject(i);
+
                         String id = c.getString("id");
                         String name = c.getString("name");
                         String email = c.getString("email");
@@ -70,49 +86,73 @@ public class FetchDataAPI extends AppCompatActivity {
 
                         // Phone node is JSON Object
                         JSONObject phone = c.getJSONObject("phone");
-
                         String mobile = phone.getString("mobile");
                         String home = phone.getString("home");
                         String office = phone.getString("office");
-Log.i("data From Json","data "+id+name+email+address+gender);
 
-                        HashMap<String,String> contact=new HashMap<>();
-                        // adding each child node to HashMap object
+                        // tmp hash map for single contact
+                        HashMap<String, String> contact = new HashMap<>();
 
+                        // adding each child node to HashMap key => value
                         contact.put("id", id);
                         contact.put("name", name);
                         contact.put("email", email);
-                        contact.put("mobile", mobile);
+
                         contact.put("address", address);
                         contact.put("gender", gender);
+                        contact.put("mobile", mobile);
                         contact.put("home",home);
                         contact.put("office",office);
 
                         // adding contact to contact list
                         contactList.add(contact);
                     }
-                } catch (JSONException e) {
-                    Log.e("task", "Json parsing error: " + e.getMessage());
-                    e.printStackTrace();
+                } catch (final JSONException e) {
+                    Log.e("Task", "Json parsing error: " + e.getMessage());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),
+                                    "Json parsing error Please Wait ..... " + e.getMessage(),
+                                    Toast.LENGTH_LONG)
+                                    .show();
+                        }
+                    });
+
                 }
-            }else {
-                Log.e("task", "Couldn't get json from server.");
+            } else {
+                Log.e("Task", "Couldn't get json from server.");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),
+                                "Couldn't get json from server. Check LogCat for possible errors!",
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+
             }
+
             return null;
         }
 
-
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
             // Dismiss the progress dialog
             if (progressDialog.isShowing())
                 progressDialog.dismiss();
-            ListAdapter listAdapter=new
-                    SimpleAdapter(FetchDataAPI.this,contactList,R.layout.list_item,
-                    new String[]{"name", "email","mobile","address", "gender"},
-                    new int[]{R.id.name,R.id.email, R.id.mobile,R.id.address,R.id.gender});
-            listView.setAdapter(listAdapter);
+
+            ListAdapter adapter = new SimpleAdapter(
+                    FetchDataAPI.this, contactList,
+                    R.layout.list_item, new String[]{"id","name", "email",
+                    "address", "gender","mobile","home","office"},
+                    new int[]{R.id.id, R.id.name,
+                    R.id.email,R.id.address,R.id.gender,R.id.mobile,R.id.home,R.id.office});
+
+            listView.setAdapter(adapter);
         }
+
     }
 }
